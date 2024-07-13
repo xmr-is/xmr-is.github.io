@@ -1,5 +1,12 @@
+.navbar-brand {
+    font-size: 30px;
+}
+
 ul {
     list-style: none;
+}
+h3 {
+    padding-left: 9px;
 }
 .custom_list {
     padding-left: 50px;
