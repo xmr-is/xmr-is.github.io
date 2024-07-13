@@ -1,7 +1,6 @@
 .navbar-brand {
     font-size: 30px;
 }
-
 ul {
     list-style: none;
 }
@@ -16,9 +15,29 @@ h3 {
 }
 .custom_row2 {
     padding-left: 50px;
-    padding-bottom: 6px;
+    padding-bottom: 9px;
 }
 .custom_row3 {
     padding-left: 50px;
-    padding-bottom: 6px;
+    padding-bottom: 9px;
+}
+
+.whole-container {
+    padding-top: 9px;
+    text-align: center;
+}
+
+.whole-container-sub {
+    display: inline-block;
+    text-align: left;
+}
+
+.bg-linkedin {
+    background-color: #0077B5;
+    color: #fff;
+}
+
+.bg-hottest {
+    background-color: #ed4f00;
+    color: #fff;
 }
