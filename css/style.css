@@ -1,6 +1,12 @@
 .navbar-brand {
+    padding-left: 50px;
     font-size: 30px;
 }
+
+nav {
+    background-color: #0077B5;
+}
+
 ul {
     list-style: none;
 }
@@ -23,13 +29,8 @@ h3 {
 }
 
 .whole-container {
-    padding-top: 9px;
-    text-align: center;
-}
-
-.whole-container-sub {
-    display: inline-block;
-    text-align: left;
+    padding-top: 15px;
+    padding-left: 50px;
 }
 
 .bg-linkedin {
