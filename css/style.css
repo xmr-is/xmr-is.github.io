@@ -50,9 +50,9 @@ h3 {
 
 .iframe-wrapper {
     position: relative;
-    padding-bottom: 56.25%;
-    height: 0;
     overflow: hidden;
+    width: 85vw;
+    height: 56.25vh;
 }
   
 .iframe-wrapper iframe {
