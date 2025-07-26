@@ -13,8 +13,14 @@ ul {
 h3 {
     padding-left: 9px;
 }
+h5 {
+    padding-left: 50px;
+}
 .custom_list {
     padding-left: 50px;
+}
+.custom_list2 {
+    padding-left: 100px;
 }
 .custom_row1 {
     padding-left: 50px;
