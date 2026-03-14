@@ -14,13 +14,12 @@
       margin: 0;
     }
     .uw-head {
-      background: #f0f4ff;
+      background: #111;
       padding: 14px 16px;
-      border-bottom: 2px solid #e94560;
     }
     .uw-head h2 {
       font-size: 1.15rem;
-      color: #e94560;
+      color: #fff;
       letter-spacing: 2px;
       margin: 0 0 8px 0;
     }
@@ -74,7 +73,7 @@
 
     .uw-body {
       padding: 12px 12px;
-      max-height: 304px;
+      max-height: 560px;
       overflow-y: auto;
     }
     .uw-card {
@@ -236,7 +235,7 @@ function uwRender() {
 
     const tracksHtml = tracks.map(tr => {
       const live = tr.heard && tr.live_dates.length > 0
-        ? `<span class="uw-live">📅${tr.live_dates.length}times<div class="uw-popup">${tr.live_dates.join('<br>')}</div></span>`
+        ? `<span class="uw-live">📅 ${tr.live_dates.length} times <div class="uw-popup">${tr.live_dates.join('<br>')}</div></span>`
         : '';
       return `<div class="uw-track">
         <span class="uw-dot ${tr.heard ? 'h' : 'u'}">${tr.heard ? '✓' : '✕'}</span>

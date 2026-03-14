@@ -60,6 +60,12 @@ h5 {
     width: 85vw;
     height: 26.25vh;
 }
+
+.iframe-wrapper2 {
+    position: relative;
+    width: 85vw;
+    margin-top: 15px;
+}
   
 .iframe-wrapper iframe {
     position: absolute;
@@ -68,4 +74,13 @@ h5 {
     bottom: 10px;
     width: 85vw;
     height: 30vh;
+}
+
+.iframe-wrapper2 iframe {
+    position: absolute;
+    left: 50px;
+    width: 85vw;
+    height: 700px;
+    border: none;
+    display: block;
 }
