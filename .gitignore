@@ -4,3 +4,5 @@ _site
 .jekyll-metadata
 vendor
 Gemfile.lock
+settings.json
+tracks_visualization_embed.html
