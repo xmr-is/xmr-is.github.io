@@ -1,0 +1,284 @@
+<!-- ===== UVERworld 視聴状況 埋め込みウィジェット ===== -->
+<!-- このブロックをそのまま任意のHTMLに貼り付けて使用 -->
+<div id="uw-tracker">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+    #uw-tracker {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      color: #1a1a1a;
+      background: #fff;
+      overflow: hidden;
+      margin: 0;
+    }
+    .uw-head {
+      background: #f0f4ff;
+      padding: 14px 16px;
+      border-bottom: 2px solid #e94560;
+    }
+    .uw-head h2 {
+      font-size: 1.15rem;
+      color: #e94560;
+      letter-spacing: 2px;
+      margin: 0 0 8px 0;
+    }
+    .uw-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .uw-stat {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      background: #fff;
+    }
+    .uw-stat.total  { border: 1px solid #94a3b8; color: #64748b; }
+    .uw-stat.heard  { border: 1px solid #16a34a; color: #16a34a; }
+    .uw-stat.unheard{ border: 1px solid #dc2626; color: #dc2626; }
+
+    .uw-ctrl {
+      padding: 10px 16px;
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .uw-search {
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      color: #1a1a1a;
+      font-size: 0.85rem;
+      flex: 1 1 160px;
+      min-width: 0;
+    }
+    .uw-fbtn {
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid #cbd5e1;
+      background: transparent;
+      color: #64748b;
+      cursor: pointer;
+      font-size: 0.78rem;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .uw-fbtn:hover { border-color: #94a3b8; color: #1a1a1a; }
+    .uw-fbtn.active { background: #e94560; border-color: #e94560; color: #fff; }
+
+    .uw-body {
+      padding: 12px 12px;
+      max-height: 304px;
+      overflow-y: auto;
+    }
+    .uw-card {
+      background: #fff;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border: 1px solid #e2e8f0;
+      overflow: hidden;
+    }
+    .uw-aheader {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .uw-aheader:hover { background: #f1f5f9; }
+    .uw-aname { font-size: 0.88rem; font-weight: bold; }
+    .uw-adate { font-size: 0.7rem; color: #94a3b8; }
+    .uw-prog {
+      margin-left: auto;
+      flex: 0 0 80px;
+      text-align: right;
+    }
+    .uw-bar {
+      height: 5px;
+      background: #e2e8f0;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .uw-fill {
+      height: 100%;
+      background: #16a34a;
+      border-radius: 3px;
+      transition: width 0.3s;
+    }
+    .uw-plabel { font-size: 0.68rem; color: #94a3b8; margin-top: 2px; }
+    .uw-chev { font-size: 0.75rem; color: #94a3b8; transition: transform 0.2s; margin-left: 6px; }
+    .uw-card.open .uw-chev { transform: rotate(180deg); }
+
+    .uw-tracks {
+      display: none;
+      padding: 4px 14px 10px;
+      border-top: 1px solid #e2e8f0;
+    }
+    .uw-card.open .uw-tracks { display: block; }
+
+    .uw-track {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 0;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 0.83rem;
+    }
+    .uw-track:last-child { border-bottom: none; }
+
+    .uw-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6rem;
+      flex-shrink: 0;
+    }
+    .uw-dot.h { background: #dcfce7; color: #16a34a; }
+    .uw-dot.u { background: #fee2e2; color: #dc2626; }
+
+    .uw-ttitle { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .uw-ttitle.u { color: #94a3b8; }
+
+    .uw-live {
+      position: relative;
+      font-size: 0.68rem;
+      color: #64748b;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .uw-popup {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 18px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 6px 10px;
+      z-index: 50;
+      min-width: 120px;
+      font-size: 0.73rem;
+      color: #475569;
+      white-space: nowrap;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .uw-live:hover .uw-popup { display: block; }
+
+    /* レスポンシブ: スマホ */
+    @media (max-width: 600px) {
+      .uw-head h2 { font-size: 1rem; }
+      .uw-ctrl { gap: 6px; }
+      .uw-search { font-size: 0.8rem; }
+      .uw-fbtn { font-size: 0.72rem; padding: 4px 9px; }
+      .uw-aname { font-size: 0.82rem; }
+      .uw-track { font-size: 0.78rem; }
+      .uw-prog { flex: 0 0 64px; }
+    }
+  </style>
+
+  <div class="uw-head">
+    <h2>TRACK LIST</h2>
+    <div class="uw-stats">
+      <span class="uw-stat total">Total 227 Tracks</span>
+      <span class="uw-stat heard">✅ Heard 168 Tracks</span>
+      <span class="uw-stat unheard">❌ Unheard 59 Tracks</span>
+    </div>
+  </div>
+
+  <div class="uw-ctrl">
+    <input class="uw-search" id="uw-search" type="text" placeholder="🔍 Search by track or album name...">
+    <button class="uw-fbtn active" onclick="uwFilter('all',this)">All</button>
+    <button class="uw-fbtn" onclick="uwFilter('heard',this)">Heard</button>
+    <button class="uw-fbtn" onclick="uwFilter('unheard',this)">Unheard</button>
+    <button class="uw-fbtn" onclick="uwExpand(true)">Expand All</button>
+    <button class="uw-fbtn" onclick="uwExpand(false)">Collapse All</button>
+  </div>
+
+  <div class="uw-body" id="uw-body"></div>
+</div>
+
+<script>
+(function(){
+const UW_DATA = [{"album_name": "D-tecnoLife", "release_date": "2005-07-06", "tracks": [{"title": "D-tecnoLife", "heard": true, "live_dates": ["2019/12/31", "2024/12/31", "2025/12/31"]}, {"title": "Mixed-Up", "heard": false, "live_dates": []}, {"title": "ai ta心", "heard": false, "live_dates": []}, {"title": "D-tecnoLife", "heard": true, "live_dates": ["2019/12/31", "2024/12/31", "2025/12/31"]}], "heard_count": 2, "total_count": 4}, {"album_name": "CHANCE!", "release_date": "2005-10-26", "tracks": [{"title": "CHANCE!", "heard": true, "live_dates": ["2019/12/31", "2020/12/31", "2021/12/31", "2024/12/30", "2025/06/14", "2025/06/15", "2025/12/31"]}, {"title": "PRIME", "heard": false, "live_dates": []}, {"title": "SHINE", "heard": false, "live_dates": []}, {"title": "CHANCE!", "heard": true, "live_dates": ["2019/12/31", "2020/12/31", "2021/12/31", "2024/12/30", "2025/06/14", "2025/06/15", "2025/12/31"]}], "heard_count": 2, "total_count": 4}, {"album_name": "just Melody", "release_date": "2006-01-25", "tracks": [{"title": "just Melody", "heard": true, "live_dates": ["2024/12/25", "2025/09/05", "2025/12/31"]}, {"title": "Revolve", "heard": true, "live_dates": ["2023/12/31"]}, {"title": "D-tecnoLife", "heard": true, "live_dates": ["2019/12/31", "2024/12/31", "2025/12/31"]}], "heard_count": 3, "total_count": 3}, {"album_name": "Timeless", "release_date": "2006-02-22", "tracks": [{"title": "CHANCE!", "heard": true, "live_dates": ["2019/12/31", "2020/12/31", "2021/12/31", "2024/12/30", "2025/06/14", "2025/06/15", "2025/12/31"]}, {"title": "トキノナミダ", "heard": true, "live_dates": ["2022/03/01"]}, {"title": "Rush", "heard": true, "live_dates": ["2025/12/30"]}, {"title": "D-tecnoLife", "heard": true, "live_dates": ["2019/12/31", "2024/12/31", "2025/12/31"]}, {"title": "優しさの雫", "heard": false, "live_dates": []}, {"title": "ai ta心", "heard": false, "live_dates": []}, {"title": "Burst", "heard": false, "live_dates": []}, {"title": "Nitro", "heard": false, "live_dates": []}, {"title": "just Melody", "heard": true, "live_dates": ["2024/12/25", "2025/09/05", "2025/12/31"]}, {"title": "Lump Of Affection", "heard": false, "live_dates": []}, {"title": "扉", "heard": false, "live_dates": []}, {"title": "SE", "heard": false, "live_dates": []}, {"title": "D-tecnoLife", "heard": true, "live_dates": ["2019/12/31", "2024/12/31", "2025/12/31"]}], "heard_count": 6, "total_count": 13}, {"album_name": "Colors of the Heart", "release_date": "2006-05-17", "tracks": [{"title": "Colors of the Heart", "heard": true, "live_dates": ["2025/12/31", "2026/02/21"]}, {"title": "SORA", "heard": true, "live_dates": ["2023/12/30", "2024/12/20"]}, {"title": "一人じゃないから", "heard": false, "live_dates": []}], "heard_count": 2, "total_count": 3}, {"album_name": "SHAMROCK", "release_date": "2006-08-02", "tracks": [{"title": "SHAMROCK", "heard": true, "live_dates": ["2019/12/31", "2020/12/31", "2021/12/31", "2025/12/25", "2025/12/31"]}, {"title": "僕に重なって来る今", "heard": false, "live_dates": []}, {"title": "＝", "heard": false, "live_dates": []}], "heard_count": 1, "total_count": 3}, {"album_name": "君の好きなうた", "release_date": "2006-11-15", "tracks": [{"title": "君の好きなうた", "heard": true, "live_dates": ["2019/12/31", "2020/12/31", "2025/06/15"]}, {"title": "EXTREME", "heard": false, "live_dates": []}, {"title": "優しさの雫", "heard": false, "live_dates": []}], "heard_count": 1, "total_count": 3}, {"album_name": "BUGRIGHT", "release_date": "2007-02-21", "tracks": [{"title": "ゼロの答", "heard": true, "live_dates": ["2023/12/30", "2024/12/25", "2024/12/31"]}, {"title": "SHAMROCK", "heard": true, "live_dates": ["2019/12/31", "2020/12/31", "2021/12/31", "2025/12/25", "2025/12/31"]}, {"title": "Home 微熱39℃", "heard": true, "live_dates": ["2020/09/25", "2024/12/31", "2025/12/25"]}, {"title": "~流れ・空虚・THIS WORD~", "heard": true, "live_dates": ["2022/12/30", "2022/12/31"]}, {"title": "Colors of the Heart", "heard": true, "live_dates": ["2025/12/31", "2026/02/21"]}, {"title": "Live everyday as if it were the last day", "heard": true, "live_dates": ["2024/12/30"]}, {"title": "シャルマンノウラ", "heard": false, "live_dates": []}, {"title": "一人じゃないから", "heard": false, "live_dates": []}, {"title": "君の好きなうた", "heard": true, "live_dates": ["2019/12/31", "2020/12/31", "2025/06/15"]}, {"title": "51%", "heard": true, "live_dates": ["2025/12/25"]}, {"title": "LIFEsize", "heard": true, "live_dates": ["2018/12/30", "2021/12/31", "2026/02/21"]}, {"title": "EMPTY96", "heard": true, "live_dates": ["2018/12/30", "2021/12/30", "2021/12/31", "2022/03/01", "2026/02/21"]}, {"title": "DISCORD", "heard": true, "live_dates": ["2026/02/21"]}, {"title": "君の好きなうた", "heard": true, "live_dates": ["2019/12/31", "2020/12/31", "2025/06/15"]}], "heard_count": 12, "total_count": 14}, {"album_name": "endscape", "release_date": "2007-08-02", "tracks": [{"title": "endscape", "heard": true, "live_dates": ["2023/12/31", "2024/12/31", "2025/09/05"]}, {"title": "UNKNOWN ORCHESTRA", "heard": true, "live_dates": ["2018/12/30", "2019/12/20", "2019/12/30", "2019/12/31", "2020/12/30", "2021/12/30", "2022/03/01", "2023/12/30", "2024/12/20", "2025/06/15", "2025/12/31"]}, {"title": "モノクローム~気付けなかったdevotion~", "heard": false, "live_dates": []}], "heard_count": 2, "total_count": 3}, {"album_name": "シャカビーチ~Laka Laka La~", "release_date": "2007-08-08", "tracks": [{"title": "シャカビーチ~Laka Laka La~", "heard": true, "live_dates": ["2020/12/31", "2024/12/25", "2025/12/25"]}, {"title": "Rainy", "heard": false, "live_dates": []}, {"title": "sorrow [file named “moment”]", "heard": false, "live_dates": []}], "heard_count": 1, "total_count": 3}, {"album_name": "浮世CROSSING", "release_date": "2007-11-14", "tracks": [{"title": "浮世CROSSING", "heard": true, "live_dates": ["2018/12/30", "2020/12/31"]}, {"title": "DISCORD", "heard": true, "live_dates": ["2026/02/21"]}, {"title": "energy", "heard": true, "live_dates": ["2019/12/31", "2024/12/25", "2025/12/25"]}], "heard_count": 3, "total_count": 3}, {"album_name": "PROGLUTION", "release_date": "2008-01-16", "tracks": [{"title": "Roots", "heard": true, "live_dates": ["2022/12/30", "2025/09/05", "2026/02/04", "2026/02/21"]}, {"title": "brand new ancient", "heard": true, "live_dates": ["2024/12/30"]}, {"title": "浮世CROSSING", "heard": true, "live_dates": ["2018/12/30", "2020/12/31"]}, {"title": "病的希求日記", "heard": false, "live_dates": []}, {"title": "counting song - H", "heard": true, "live_dates": ["2019/12/31", "2025/06/15"]}, {"title": "シャカビーチ~Laka Laka La~", "heard": true, "live_dates": ["2020/12/31", "2024/12/25", "2025/12/25"]}, {"title": "GROOVY GROOVY GROOVY", "heard": false, "live_dates": []}, {"title": "expod -digital", "heard": false, "live_dates": []}, {"title": "-妙策号外ORCHESTRA-", "heard": false, "live_dates": []}, {"title": "UNKNOWN ORCHESTRA", "heard": true, "live_dates": ["2018/12/30", "2019/12/20", "2019/12/30", "2019/12/31", "2020/12/30", "2021/12/30", "2022/03/01", "2023/12/30", "2024/12/20", "2025/06/15", "2025/12/31"]}, {"title": "-god's followers-", "heard": false, "live_dates": []}, {"title": "神集め", "heard": true, "live_dates": ["2025/12/25", "2025/12/30"]}, {"title": "-forecast map 1955-", "heard": false, "live_dates": []}, {"title": "ENERGY", "heard": true, "live_dates": ["2019/12/31", "2024/12/25", "2025/12/25"]}, {"title": "endscape", "heard": true, "live_dates": ["2023/12/31", "2024/12/31", "2025/09/05"]}, {"title": "心が指す場所と口癖 そして君がついて来る", "heard": false, "live_dates": []}, {"title": "オトノハ", "heard": false, "live_dates": []}, {"title": "to the world(SE)", "heard": true, "live_dates": ["2024/12/25"]}], "heard_count": 10, "total_count": 18}, {"album_name": "激動/Just break the limit!", "release_date": "2008-06-11", "tracks": [{"title": "激動", "heard": true, "live_dates": ["2018/12/30", "2019/12/20", "2019/12/31", "2020/06/06", "2023/07/30", "2025/09/05", "2025/12/25", "2025/12/30"]}, {"title": "Just break the limit!", "heard": false, "live_dates": []}], "heard_count": 1, "total_count": 2}, {"album_name": "恋いしくて", "release_date": "2008-09-10", "tracks": [{"title": "恋いしくて", "heard": false, "live_dates": []}, {"title": "志-kokorozashi-", "heard": false, "live_dates": []}, {"title": "over the stoic", "heard": true, "live_dates": ["2025/12/31"]}], "heard_count": 1, "total_count": 3}, {"album_name": "儚くも永久のカナシ", "release_date": "2008-11-19", "tracks": [{"title": "儚くも永久のカナシ", "heard": true, "live_dates": ["2021/12/31", "2025/06/14", "2025/12/31"]}, {"title": "体温", "heard": false, "live_dates": []}, {"title": "ハルジオン", "heard": true, "live_dates": ["2020/12/30", "2025/12/20"]}], "heard_count": 2, "total_count": 3}, {"album_name": "AwakEVE", "release_date": "2009-02-18", "tracks": [{"title": "激動", "heard": true, "live_dates": ["2018/12/30", "2019/12/20", "2019/12/31", "2020/06/06", "2023/07/30", "2025/09/05", "2025/12/25", "2025/12/30"]}, {"title": "99/100騙しの哲", "heard": true, "live_dates": ["2024/12/30"]}, {"title": "美影意志", "heard": true, "live_dates": ["2020/06/06", "2022/12/30", "2024/12/30", "2026/02/04"]}, {"title": "コロナ", "heard": true, "live_dates": ["2020/07/06"]}, {"title": "儚くも永久のカナシ", "heard": true, "live_dates": ["2021/12/31", "2025/06/14", "2025/12/31"]}, {"title": "earthy world", "heard": true, "live_dates": ["2019/12/31", "2020/07/06", "2022/12/31"]}, {"title": "畢生皐月プロローグ", "heard": true, "live_dates": ["2018/12/30", "2023/12/30", "2024/12/25", "2024/12/30"]}, {"title": "アイ・アム Riri", "heard": false, "live_dates": []}, {"title": "恋いしくて", "heard": false, "live_dates": []}, {"title": "Forget", "heard": true, "live_dates": ["2024/12/25"]}, {"title": "Just break the limit!", "heard": false, "live_dates": []}, {"title": "和音", "heard": true, "live_dates": ["2019/12/20", "2019/12/30", "2019/12/31"]}, {"title": "ハルジオン", "heard": true, "live_dates": ["2020/12/30", "2025/12/20"]}, {"title": "YURA YURA", "heard": true, "live_dates": ["2022/03/01"]}], "heard_count": 11, "total_count": 14}, {"album_name": "GO-ON", "release_date": "2009-08-05", "tracks": [{"title": "GO-ON", "heard": false, "live_dates": []}, {"title": "the truth", "heard": false, "live_dates": []}, {"title": "マダラ蝶", "heard": false, "live_dates": []}], "heard_count": 0, "total_count": 3}, {"album_name": "哀しみはきっと", "release_date": "2009-10-28", "tracks": [{"title": "哀しみはきっと", "heard": true, "live_dates": ["2023/12/31"]}, {"title": "撃破", "heard": true, "live_dates": ["2021/12/31"]}, {"title": "美影意志", "heard": true, "live_dates": ["2020/06/06", "2022/12/30", "2024/12/30", "2026/02/04"]}], "heard_count": 3, "total_count": 3}, {"album_name": "Neo SOUND BEST", "release_date": "2009-12-09", "tracks": [{"title": "D-tecnoRize", "heard": false, "live_dates": []}, {"title": "CHANCE!", "heard": true, "live_dates": ["2019/12/31", "2020/12/31", "2021/12/31", "2024/12/30", "2025/06/14", "2025/06/15", "2025/12/31"]}, {"title": "儚くも永久のカナシ", "heard": true, "live_dates": ["2021/12/31", "2025/06/14", "2025/12/31"]}, {"title": "Roots", "heard": true, "live_dates": ["2022/12/30", "2025/09/05", "2026/02/04", "2026/02/21"]}, {"title": "激動", "heard": true, "live_dates": ["2018/12/30", "2019/12/20", "2019/12/31", "2020/06/06", "2023/07/30", "2025/09/05", "2025/12/25", "2025/12/30"]}, {"title": "99/100騙しの哲", "heard": true, "live_dates": ["2024/12/30"]}, {"title": "ゼロの答", "heard": true, "live_dates": ["2023/12/30", "2024/12/25", "2024/12/31"]}, {"title": "シャカビーチ~Laka Laka La~", "heard": true, "live_dates": ["2020/12/31", "2024/12/25", "2025/12/25"]}, {"title": "浮世CROSSING", "heard": true, "live_dates": ["2018/12/30", "2020/12/31"]}, {"title": "SHAMROCK", "heard": true, "live_dates": ["2019/12/31", "2020/12/31", "2021/12/31", "2025/12/25", "2025/12/31"]}, {"title": "優しさの雫", "heard": false, "live_dates": []}, {"title": "モノクローム~気付けなかったdevotion~", "heard": false, "live_dates": []}, {"title": "君の好きなうた", "heard": true, "live_dates": ["2019/12/31", "2020/12/31", "2025/06/15"]}, {"title": "恋いしくて", "heard": false, "live_dates": []}, {"title": "哀しみはきっと", "heard": true, "live_dates": ["2023/12/31"]}, {"title": "D-tecnoLife", "heard": true, "live_dates": ["2019/12/31", "2024/12/31", "2025/12/31"]}], "heard_count": 12, "total_count": 16}, {"album_name": "GOLD", "release_date": "2010-03-31", "tracks": [{"title": "GOLD", "heard": true, "live_dates": ["2021/12/31", "2022/12/30", "2023/12/30", "2024/12/31", "2026/02/04"]}, {"title": "CHANGE", "heard": false, "live_dates": []}, {"title": "MINORI", "heard": false, "live_dates": []}], "heard_count": 1, "total_count": 3}, {"album_name": "LAST", "release_date": "2010-04-14", "tracks": [{"title": "GOLD", "heard": true, "live_dates": ["2021/12/31", "2022/12/30", "2023/12/30", "2024/12/31", "2026/02/04"]}, {"title": "world LOST world", "heard": true, "live_dates": ["2019/12/30"]}, {"title": "スパルタ", "heard": true, "live_dates": ["2026/02/21"]}, {"title": "心とココロ", "heard": true, "live_dates": ["2020/12/31", "2024/12/20"]}, {"title": "the truth", "heard": false, "live_dates": []}, {"title": "バーレル", "heard": false, "live_dates": []}, {"title": "ﾊｲ!問題作", "heard": true, "live_dates": ["2022/12/30", "2024/12/30", "2024/12/31", "2025/12/30"]}, {"title": "closed POKER", "heard": true, "live_dates": ["2025/06/14"]}, {"title": "哀しみはきっと", "heard": true, "live_dates": ["2023/12/31"]}, {"title": "CHANGE", "heard": false, "live_dates": []}, {"title": "WANNA be BRILLIANT", "heard": true, "live_dates": ["2021/12/31", "2022/12/31", "2024/12/25", "2024/12/31", "2026/02/21"]}, {"title": "君のまま", "heard": false, "live_dates": []}, {"title": "GO-ON", "heard": false, "live_dates": []}], "heard_count": 8, "total_count": 13}, {"album_name": "クオリア", "release_date": "2010-09-15", "tracks": [{"title": "クオリア", "heard": true, "live_dates": ["2023/12/30"]}, {"title": "若さ故エンテレケイア", "heard": false, "live_dates": []}, {"title": "Ultimate", "heard": false, "live_dates": []}], "heard_count": 1, "total_count": 3}, {"album_name": "NO.1", "release_date": "2010-11-24", "tracks": [{"title": "NO.1", "heard": true, "live_dates": ["2019/12/20", "2022/03/01", "2024/12/25", "2025/06/15"]}, {"title": "6つの風", "heard": false, "live_dates": []}], "heard_count": 1, "total_count": 2}, {"album_name": "LIFE 6 SENSE", "release_date": "2011-06-01", "tracks": [{"title": "CORE PRIDE", "heard": true, "live_dates": ["2018/12/30", "2019/12/20", "2019/12/31", "2020/07/06", "2020/09/25", "2020/12/30", "2023/12/31", "2025/09/05", "2026/02/04"]}, {"title": "いつか必ず死ぬことを忘れるな", "heard": false, "live_dates": []}, {"title": "一石を投じる Tokyo midnight sun", "heard": true, "live_dates": ["2025/09/05"]}, {"title": "ace of ace", "heard": true, "live_dates": ["2022/12/30", "2022/12/31"]}, {"title": "NO.1", "heard": true, "live_dates": ["2019/12/20", "2022/03/01", "2024/12/25", "2025/06/15"]}, {"title": "クオリア", "heard": true, "live_dates": ["2023/12/30"]}, {"title": "シークレット", "heard": false, "live_dates": []}, {"title": "勝者臆病者", "heard": false, "live_dates": []}, {"title": "6つの風", "heard": false, "live_dates": []}, {"title": "一億分の一の小説", "heard": true, "live_dates": ["2021/12/30"]}, {"title": "MONDO PIECE", "heard": true, "live_dates": ["2019/12/20", "2019/12/31", "2020/06/06", "2021/12/31", "2023/07/30", "2023/12/31", "2024/12/25", "2025/12/31"]}, {"title": "白昼夢", "heard": true, "live_dates": ["2025/12/20", "2025/12/25", "2025/12/30"]}], "heard_count": 8, "total_count": 12}, {"album_name": "BABY BORN & GO/KINJITO", "release_date": "2011-12-14", "tracks": [{"title": "BABY BORN & GO", "heard": true, "live_dates": ["2020/09/25", "2022/12/31", "2023/07/30", "2024/12/20", "2026/02/04"]}, {"title": "KINJITO", "heard": true, "live_dates": ["2019/12/20", "2020/09/25", "2023/07/30", "2025/06/14", "2025/12/30"]}], "heard_count": 2, "total_count": 2}, {"album_name": "7th Trigger", "release_date": "2012-03-28", "tracks": [{"title": "7th Trigger", "heard": true, "live_dates": ["2020/07/06", "2020/12/31", "2022/12/30", "2023/07/30", "2023/12/31", "2025/06/15", "2025/12/26"]}, {"title": "バーベル~皇帝の新しい服ver.~", "heard": true, "live_dates": ["2023/12/31", "2024/12/30", "2025/12/20"]}, {"title": "AWAYOKUBA-斬る", "heard": true, "live_dates": ["2025/12/20", "2026/02/04", "2026/02/21"]}], "heard_count": 3, "total_count": 3}, {"album_name": "CORE PRIDE", "release_date": "2012-07-03", "tracks": [{"title": "CORE PRIDE", "heard": true, "live_dates": ["2018/12/30", "2019/12/20", "2019/12/31", "2020/07/06", "2020/09/25", "2020/12/30", "2023/12/31", "2025/09/05", "2026/02/04"]}, {"title": "境地・マントラ", "heard": false, "live_dates": []}], "heard_count": 1, "total_count": 2}, {"album_name": "THE OVER", "release_date": "2012-08-29", "tracks": [{"title": "THE OVER", "heard": true, "live_dates": ["2022/12/30", "2024/12/25", "2025/06/14"]}, {"title": "THE SONG", "heard": false, "live_dates": []}, {"title": "Massive", "heard": true, "live_dates": ["2019/12/31", "2020/02/05", "2021/12/31", "2022/12/31", "2023/07/30", "2023/12/30", "2025/12/30", "2026/02/21"]}], "heard_count": 2, "total_count": 3}, {"album_name": "MONDO PIECE", "release_date": "2012-11-07", "tracks": [{"title": "MONDO PIECE", "heard": true, "live_dates": ["2019/12/20", "2019/12/31", "2020/06/06", "2021/12/31", "2023/07/30", "2023/12/31", "2024/12/25", "2025/12/31"]}, {"title": "パニックワールド", "heard": false, "live_dates": []}, {"title": "魑魅魍魎マーチ", "heard": true, "live_dates": ["2020/12/30", "2023/12/31", "2025/09/05"]}], "heard_count": 2, "total_count": 3}, {"album_name": "THE ONE", "release_date": "2012-11-28", "tracks": [{"title": "THE ONE(SE)", "heard": true, "live_dates": ["2025/12/26"]}, {"title": "7th Trigger", "heard": true, "live_dates": ["2020/07/06", "2020/12/31", "2022/12/30", "2023/07/30", "2023/12/31", "2025/06/15", "2025/12/26"]}, {"title": "Don’t Think.Feel", "heard": true, "live_dates": ["2019/12/20", "2019/12/31", "2020/02/05", "2020/06/06", "2023/07/30", "2023/12/31", "2024/12/20", "2024/12/31", "2025/06/15", "2025/12/26", "2025/12/31"]}, {"title": "LIMITLESS", "heard": true, "live_dates": ["2020/09/25", "2026/02/04"]}, {"title": "23ワード", "heard": true, "live_dates": ["2019/12/20", "2023/07/30"]}, {"title": "KINJITO ", "heard": true, "live_dates": ["2019/12/20", "2020/09/25", "2023/07/30", "2025/06/14", "2025/12/30"]}, {"title": "THE OVER", "heard": true, "live_dates": ["2022/12/30", "2024/12/25", "2025/06/14"]}, {"title": "此処から", "heard": true, "live_dates": ["2020/07/06", "2025/12/25"]}, {"title": "REVERSI", "heard": true, "live_dates": ["2021/12/31", "2022/12/31", "2023/07/30", "2023/12/31", "2024/12/30", "2025/12/30"]}, {"title": "バーベル~皇帝の新しい服~", "heard": true, "live_dates": ["2023/12/31", "2024/12/30", "2025/12/20"]}, {"title": "BABY BORN & GO", "heard": true, "live_dates": ["2020/09/25", "2022/12/31", "2023/07/30", "2024/12/20", "2026/02/04"]}, {"title": "AWAYOKUBA-斬る", "heard": true, "live_dates": ["2025/12/20", "2026/02/04", "2026/02/21"]}, {"title": "NOWHERE boy", "heard": true, "live_dates": ["2021/12/30"]}], "heard_count": 13, "total_count": 13}, {"album_name": "REVERSI", "release_date": "2012-12-26", "tracks": [{"title": "REVERSI", "heard": true, "live_dates": ["2021/12/31", "2022/12/31", "2023/07/30", "2023/12/31", "2024/12/30", "2025/12/30"]}], "heard_count": 1, "total_count": 1}, {"album_name": "Fight For Liberty / Wizard CLUB", "release_date": "2013-08-14", "tracks": [{"title": "Fight For Liberty", "heard": true, "live_dates": ["2020/09/25", "2023/07/30", "2026/02/04"]}, {"title": "Wizard CLUB", "heard": true, "live_dates": ["2020/07/06", "2022/12/30", "2023/07/30", "2024/12/20", "2024/12/25"]}, {"title": "a LOVELY TONE", "heard": true, "live_dates": ["2025/12/25"]}], "heard_count": 3, "total_count": 3}, {"album_name": "ナノ・セカンド", "release_date": "2013-12-18", "tracks": [{"title": "ナノ・セカンド", "heard": true, "live_dates": ["2018/12/30", "2019/12/20", "2019/12/30", "2019/12/31", "2020/02/05", "2020/06/06", "2020/12/30", "2023/07/30", "2025/06/14", "2025/12/20", "2025/12/25", "2025/12/26", "2025/12/30", "2025/12/31"]}, {"title": "LIFE", "heard": true, "live_dates": ["2020/06/06"]}, {"title": "DEJAVU", "heard": true, "live_dates": ["2020/12/30", "2024/12/25", "2025/06/14", "2025/12/30"]}], "heard_count": 3, "total_count": 3}, {"album_name": "7日目の決意", "release_date": "2014-06-18", "tracks": [{"title": "7日目の決意", "heard": true, "live_dates": ["2019/12/20", "2020/07/06", "2024/12/31", "2025/06/14", "2026/01/31"]}, {"title": "別世界", "heard": true, "live_dates": ["2023/12/31", "2026/02/04"]}], "heard_count": 2, "total_count": 2}, {"album_name": "IMPACT", "release_date": "2014-06-25", "tracks": [{"title": "IMPACT", "heard": true, "live_dates": ["2018/12/30", "2019/12/20", "2019/12/30", "2019/12/31", "2020/02/05", "2020/12/30", "2020/12/31", "2021/12/30", "2021/12/31", "2022/12/31", "2023/07/30", "2023/12/31", "2024/12/20", "2025/05/11", "2025/06/14", "2025/06/15", "2025/12/20", "2025/12/25", "2025/12/26", "2025/12/31"]}], "heard_count": 1, "total_count": 1}, {"album_name": "0 CHOIR", "release_date": "2014-07-02", "tracks": [{"title": "零HERE~SE~", "heard": true, "live_dates": ["2018/12/30", "2019/12/20", "2019/12/30", "2019/12/31", "2020/02/05", "2021/12/30", "2021/12/31", "2023/07/30", "2025/06/14", "2025/12/20", "2025/12/25", "2025/12/26", "2025/12/31"]}, {"title": "IMPACT", "heard": true, "live_dates": ["2018/12/30", "2019/12/20", "2019/12/30", "2019/12/31", "2020/02/05", "2020/12/30", "2020/12/31", "2021/12/30", "2021/12/31", "2022/12/31", "2023/07/30", "2023/12/31", "2024/12/20", "2025/05/11", "2025/06/14", "2025/06/15", "2025/12/20", "2025/12/25", "2025/12/26", "2025/12/31"]}, {"title": "誰が言った", "heard": true, "live_dates": ["2024/12/31"]}, {"title": "ナノ・セカンド", "heard": true, "live_dates": ["2018/12/30", "2019/12/20", "2019/12/30", "2019/12/31", "2020/02/05", "2020/06/06", "2020/12/30", "2023/07/30", "2025/06/14", "2025/12/20", "2025/12/25", "2025/12/26", "2025/12/30", "2025/12/31"]}, {"title": "Fight For Liberty", "heard": true, "live_dates": ["2020/09/25", "2023/07/30", "2026/02/04"]}, {"title": "ENOUGH-1", "heard": true, "live_dates": ["2020/07/06", "2023/12/31"]}, {"title": "KICKが自由", "heard": true, "live_dates": ["2020/07/06", "2023/12/30"]}, {"title": "a LOVELY TONE", "heard": true, "live_dates": ["2025/12/25"]}, {"title": "7日目の決意", "heard": true, "live_dates": ["2019/12/20", "2020/07/06", "2024/12/31", "2025/06/14", "2026/01/31"]}, {"title": "別世界", "heard": true, "live_dates": ["2023/12/31", "2026/02/04"]}, {"title": "Born Slippy", "heard": false, "live_dates": []}, {"title": "Wizard CLUB", "heard": true, "live_dates": ["2020/07/06", "2022/12/30", "2023/07/30", "2024/12/20", "2024/12/25"]}, {"title": "在るべき形", "heard": true, "live_dates": ["2018/12/30", "2019/12/20", "2020/06/06", "2020/09/25", "2020/12/31", "2022/12/31", "2023/12/30", "2025/12/20", "2026/02/04"]}, {"title": "0 choir", "heard": true, "live_dates": ["2018/12/30", "2019/12/20", "2019/12/30", "2019/12/31", "2020/02/05", "2020/06/06", "2020/12/31", "2023/12/31", "2024/12/31", "2025/06/14", "2025/12/20", "2025/12/31", "2026/01/31"]}], "heard_count": 13, "total_count": 14}, {"album_name": "僕の言葉ではない これは僕達の言葉", "release_date": "2015-05-27", "tracks": [{"title": "僕の言葉ではない これは僕達の言葉", "heard": true, "live_dates": ["2022/12/30", "2024/12/30", "2024/12/31", "2025/12/30"]}, {"title": "言わなくても伝わる あれは少し嘘だ", "heard": true, "live_dates": ["2025/06/15"]}, {"title": "Collide", "heard": true, "live_dates": ["2023/12/30", "2026/02/04"]}, {"title": "IMPACT", "heard": true, "live_dates": ["2018/12/30", "2019/12/20", "2019/12/30", "2019/12/31", "2020/02/05", "2020/12/30", "2020/12/31", "2021/12/30", "2021/12/31", "2022/12/31", "2023/07/30", "2023/12/31", "2024/12/20", "2025/05/11", "2025/06/14", "2025/06/15", "2025/12/20", "2025/12/25", "2025/12/26", "2025/12/31"]}], "heard_count": 4, "total_count": 4}, {"album_name": "I LOVE THE WORLD", "release_date": "2015-08-26", "tracks": [{"title": "I LOVE THE WORLD", "heard": true, "live_dates": ["2018/12/30", "2020/12/30", "2023/12/30", "2025/06/15"]}, {"title": "PRAYING RUN", "heard": true, "live_dates": ["2018/12/30", "2019/12/20", "2019/12/30", "2020/02/05", "2022/12/31", "2023/07/30", "2023/12/31", "2025/05/11", "2025/06/14", "2026/01/31"]}, {"title": "CHANCE!04", "heard": true, "live_dates": ["2019/12/31", "2020/12/31", "2021/12/31", "2024/12/30", "2025/06/14", "2025/06/15", "2025/12/31"]}], "heard_count": 3, "total_count": 3}, {"album_name": "WE ARE GO/ALL ALONE", "release_date": "2016-07-27", "tracks": [{"title": "WE ARE GO", "heard": true, "live_dates": ["2018/12/30", "2019/12/20", "2020/02/05", "2022/12/31", "2023/07/30", "2025/06/15"]}, {"title": "ALL ALONE", "heard": true, "live_dates": ["2022/12/31", "2023/12/30", "2026/01/31"]}], "heard_count": 2, "total_count": 2}, {"album_name": "一滴の影響 (Extra Edition)", "release_date": "2017-02-01", "tracks": [{"title": "一滴の影響", "heard": true, "live_dates": ["2020/09/25", "2021/12/30", "2022/12/30", "2024/12/20", "2025/06/15"]}, {"title": "エミュー", "heard": false, "live_dates": []}, {"title": "Forever Young", "heard": false, "live_dates": []}, {"title": "CORE PRIDE", "heard": true, "live_dates": ["2018/12/30", "2019/12/20", "2019/12/31", "2020/07/06", "2020/09/25", "2020/12/30", "2023/12/31", "2025/09/05", "2026/02/04"]}, {"title": "REVERSI", "heard": true, "live_dates": ["2021/12/31", "2022/12/31", "2023/07/30", "2023/12/31", "2024/12/30", "2025/12/30"]}, {"title": "一滴の影響", "heard": true, "live_dates": ["2020/09/25", "2021/12/30", "2022/12/30", "2024/12/20", "2025/06/15"]}, {"title": "エミュー", "heard": false, "live_dates": []}], "heard_count": 4, "total_count": 7}, {"album_name": "DECIDED", "release_date": "2017-07-12", "tracks": [{"title": "DECIDED", "heard": true, "live_dates": ["2018/12/30", "2025/06/14"]}, {"title": "RANGE", "heard": true, "live_dates": ["2023/07/30", "2023/12/31", "2024/12/25", "2025/05/11", "2025/06/14", "2025/12/20"]}, {"title": "DIS is TEKI", "heard": false, "live_dates": []}], "heard_count": 2, "total_count": 3}, {"album_name": "TYCOON", "release_date": "2017-08-02", "tracks": [{"title": "TYCOON", "heard": true, "live_dates": ["2018/12/30", "2023/12/31", "2024/12/20", "2024/12/25", "2024/12/31", "2025/12/25", "2026/02/04"]}, {"title": "Q.E.D.", "heard": true, "live_dates": ["2018/12/30", "2019/12/20", "2025/06/14"]}, {"title": "シリウス", "heard": true, "live_dates": ["2022/12/30", "2023/12/30", "2024/12/20", "2025/09/05"]}, {"title": "SHOUT LOVE", "heard": false, "live_dates": []}, {"title": "IDEAL REALITY", "heard": true, "live_dates": ["2018/12/30", "2020/09/25"]}, {"title": "LONE WOLF", "heard": false, "live_dates": []}, {"title": "DECIDED ", "heard": true, "live_dates": ["2018/12/30", "2025/06/14"]}, {"title": "PRAYING RUN", "heard": true, "live_dates": ["2018/12/30", "2019/12/20", "2019/12/30", "2020/02/05", "2022/12/31", "2023/07/30", "2023/12/31", "2025/05/11", "2025/06/14", "2026/01/31"]}, {"title": "ALL ALONE", "heard": true, "live_dates": ["2022/12/31", "2023/12/30", "2026/01/31"]}, {"title": "一滴の影響", "heard": true, "live_dates": ["2020/09/25", "2021/12/30", "2022/12/30", "2024/12/20", "2025/06/15"]}, {"title": "ほんの少し", "heard": false, "live_dates": []}, {"title": "僕の言葉ではない これは僕達の言葉", "heard": true, "live_dates": ["2022/12/30", "2024/12/30", "2024/12/31", "2025/12/30"]}, {"title": "WE ARE GO", "heard": true, "live_dates": ["2018/12/30", "2019/12/20", "2020/02/05", "2022/12/31", "2023/07/30", "2025/06/15"]}, {"title": "Collide", "heard": true, "live_dates": ["2023/12/30", "2026/02/04"]}, {"title": "奏全域", "heard": true, "live_dates": ["2018/12/30", "2022/12/30"]}, {"title": "I LOVE THE WORLD", "heard": true, "live_dates": ["2018/12/30", "2020/12/30", "2023/12/30", "2025/06/15"]}, {"title": "エミュー", "heard": false, "live_dates": []}, {"title": "終焉", "heard": false, "live_dates": []}], "heard_count": 13, "total_count": 18}, {"album_name": "ODD FUTURE", "release_date": "2018-05-02", "tracks": [{"title": "ODD FUTURE", "heard": true, "live_dates": ["2018/12/30", "2019/12/20", "2019/12/30", "2019/12/31", "2020/02/05", "2020/06/06", "2021/12/30", "2022/03/01", "2022/12/30", "2025/06/14"]}, {"title": "PLOT", "heard": true, "live_dates": ["2018/12/30", "2019/12/20", "2019/12/30", "2020/12/30", "2024/12/20", "2024/12/25", "2024/12/31"]}, {"title": "CORE STREAM", "heard": true, "live_dates": ["2018/12/30", "2019/12/20", "2019/12/30", "2022/03/01"]}], "heard_count": 3, "total_count": 3}, {"album_name": "GOOD and EVIL / EDENへ", "release_date": "2018-11-07", "tracks": [{"title": "GOOD and EVIL", "heard": true, "live_dates": ["2018/12/30", "2019/12/30"]}, {"title": "EDENへ", "heard": true, "live_dates": ["2018/12/30", "2019/12/30", "2020/02/05", "2020/07/06", "2021/12/30", "2022/03/01", "2024/12/30", "2025/12/31", "2026/02/21"]}], "heard_count": 2, "total_count": 2}, {"album_name": "Touch off", "release_date": "2019-02-27", "tracks": [{"title": "Touch off", "heard": true, "live_dates": ["2019/12/20", "2019/12/30", "2019/12/31", "2020/02/05", "2020/06/06", "2020/07/06", "2020/09/25", "2020/12/30", "2020/12/31", "2021/12/30", "2021/12/31", "2022/03/01", "2022/12/31", "2023/07/30", "2023/12/31", "2024/12/20", "2025/05/11", "2025/06/14", "2025/06/15", "2025/12/31"]}, {"title": "ConneQt", "heard": true, "live_dates": ["2019/12/30", "2020/02/05", "2020/09/25", "2020/12/30", "2020/12/31"]}], "heard_count": 2, "total_count": 2}, {"album_name": "ROB THE FRONTIER", "release_date": "2019-10-16", "tracks": [{"title": "ROB THE FRONTIER", "heard": true, "live_dates": ["2019/12/30", "2020/02/05", "2020/07/06", "2020/12/30", "2020/12/31", "2024/12/25"]}], "heard_count": 1, "total_count": 1}, {"album_name": "Making it Drive", "release_date": "2019-11-23", "tracks": [{"title": "Making it Drive", "heard": true, "live_dates": ["2019/12/20", "2019/12/30", "2019/12/31", "2020/02/05", "2020/06/06", "2021/12/30", "2022/03/01", "2022/12/31", "2026/02/04"]}], "heard_count": 1, "total_count": 1}, {"album_name": "UNSER", "release_date": "2019-12-04", "tracks": [{"title": "Making it Drive", "heard": true, "live_dates": ["2019/12/20", "2019/12/30", "2019/12/31", "2020/02/05", "2020/06/06", "2020/07/06", "2020/09/25", "2020/12/30", "2020/12/31", "2021/12/30", "2021/12/31", "2022/03/01", "2022/12/31", "2023/07/30", "2023/12/31", "2024/12/20", "2025/05/11", "2025/06/14", "2025/06/15", "2025/12/31"]}, {"title": "AFTER LIFE", "heard": true, "live_dates": ["2019/12/20", "2019/12/30", "2019/12/31", "2020/02/05", "2020/06/06", "2020/07/06", "2020/09/25", "2020/12/30", "2020/12/31", "2021/12/30", "2021/12/31", "2022/03/01", "2022/12/31", "2023/07/30", "2023/12/31", "2024/12/31", "2025/06/14", "2025/06/15", "2025/12/20", "2025/12/25", "2025/12/26", "2025/12/31"]}, {"title": "Touch off", "heard": true, "live_dates": ["2019/12/20", "2019/12/30", "2019/12/31", "2020/02/05", "2020/06/06", "2020/07/06", "2020/09/25", "2020/12/30", "2020/12/31", "2021/12/30", "2021/12/31", "2022/03/01", "2022/12/31", "2023/07/30", "2023/12/31", "2024/12/20", "2025/05/11", "2025/06/14", "2025/06/15", "2025/12/31"]}, {"title": "境界", "heard": true, "live_dates": ["2019/12/20", "2019/12/30", "2019/12/31", "2020/02/05", "2020/09/25"]}, {"title": "stay on", "heard": true, "live_dates": ["2019/12/20", "2019/12/30", "2019/12/31", "2020/02/05", "2020/06/06", "2020/09/25", "2020/12/30", "2020/12/31", "2021/12/30", "2022/03/01", "2025/12/30", "2026/02/21"]}, {"title": "First Sight", "heard": true, "live_dates": ["2019/12/20", "2019/12/30", "2020/02/05"]}, {"title": "ODD FUTURE", "heard": true, "live_dates": ["2018/12/30", "2019/12/20", "2019/12/30", "2019/12/31", "2020/02/05", "2020/06/06", "2021/12/30", "2022/03/01", "2022/12/30", "2025/06/14"]}, {"title": "無意味になる夜", "heard": true, "live_dates": ["2019/12/30"]}, {"title": "EDENへ", "heard": true, "live_dates": ["2018/12/30", "2019/12/30", "2020/02/05", "2020/07/06", "2021/12/30", "2022/03/01", "2024/12/30", "2025/12/31", "2026/02/21"]}, {"title": "ConneQt", "heard": true, "live_dates": ["2019/12/30", "2020/02/05", "2020/09/25", "2020/12/30", "2020/12/31"]}, {"title": "OXYMORON", "heard": true, "live_dates": ["2019/12/30", "2024/12/20", "2024/12/25", "2024/12/30", "2024/12/31"]}, {"title": "One Last Time", "heard": true, "live_dates": ["2019/12/30", "2020/02/05", "2022/12/30", "2022/12/31"]}, {"title": "ROB THE FRONTIER", "heard": true, "live_dates": ["2019/12/30", "2020/02/05", "2020/07/06", "2020/12/30", "2020/12/31", "2024/12/25"]}, {"title": "GOOD and EVIL", "heard": true, "live_dates": ["2018/12/30", "2019/12/30"]}, {"title": "UNSER", "heard": true, "live_dates": ["2019/12/20", "2019/12/30", "2019/12/31", "2020/02/05", "2020/06/06", "2020/07/06", "2020/09/25", "2020/12/30", "2026/02/21"]}], "heard_count": 15, "total_count": 15}, {"album_name": "AS ONE", "release_date": "2020-03-04", "tracks": [{"title": "AS ONE", "heard": true, "live_dates": ["2020/06/06", "2020/07/06", "2020/12/30", "2022/03/01", "2024/12/25", "2024/12/30"]}, {"title": "Spreadown", "heard": true, "live_dates": ["2020/06/06", "2020/07/06", "2020/09/25", "2020/12/30", "2020/12/31", "2021/12/30"]}], "heard_count": 2, "total_count": 2}, {"album_name": "HOURGLASS", "release_date": "2021-03-10", "tracks": [{"title": "HOURGLASS", "heard": true, "live_dates": ["2020/12/30", "2020/12/31", "2025/12/20"]}, {"title": "Teenage Love", "heard": true, "live_dates": ["2020/12/30", "2020/12/31"]}], "heard_count": 2, "total_count": 2}, {"album_name": "NAMELY", "release_date": "2021-06-02", "tracks": [{"title": "NAMELY", "heard": true, "live_dates": ["2022/12/31", "2026/02/21"]}, {"title": "LIVIN' IT UP", "heard": false, "live_dates": []}], "heard_count": 1, "total_count": 2}, {"album_name": "来鳥江 / SOUL", "release_date": "2021-10-06", "tracks": [{"title": "来鳥江", "heard": true, "live_dates": ["2020/12/31", "2023/07/30"]}, {"title": "SOUL", "heard": true, "live_dates": ["2020/12/30", "2020/12/31", "2021/12/31"]}], "heard_count": 2, "total_count": 2}, {"album_name": "AVALANCHE", "release_date": "2021-11-22", "tracks": [{"title": "AVALANCHE", "heard": true, "live_dates": ["2021/12/30", "2021/12/31", "2022/03/01", "2022/12/30", "2022/12/31", "2023/12/30", "2024/12/20", "2024/12/30"]}, {"title": "イーティー", "heard": true, "live_dates": ["2022/03/01"]}], "heard_count": 2, "total_count": 2}, {"album_name": "30", "release_date": "2021-12-22", "tracks": [{"title": "EN", "heard": true, "live_dates": ["2020/12/30", "2020/12/31", "2021/12/30", "2021/12/31", "2022/03/01", "2022/12/30", "2022/12/31", "2023/07/30", "2023/12/30", "2023/12/31", "2024/12/20", "2024/12/31", "2025/05/11", "2025/06/14", "2025/06/15", "2025/12/20", "2025/12/26", "2025/12/31", "2026/01/31"]}, {"title": "One stroke for freedom", "heard": true, "live_dates": ["2021/12/30", "2021/12/31", "2022/03/01", "2022/12/30", "2022/12/31", "2023/07/30"]}, {"title": "えくぼ", "heard": true, "live_dates": ["2021/12/30", "2021/12/31", "2022/03/01"]}, {"title": "OUR ALWAYS", "heard": true, "live_dates": ["2021/12/30", "2021/12/31", "2022/03/01"]}, {"title": "AVALANCHE", "heard": true, "live_dates": ["2021/12/30", "2021/12/31", "2022/03/01", "2022/12/30", "2022/12/31", "2023/12/30", "2024/12/20", "2024/12/30"]}, {"title": "THUG LIFE", "heard": true, "live_dates": ["2021/12/30", "2021/12/31", "2022/03/01", "2022/12/30"]}, {"title": "SOUL", "heard": true, "live_dates": ["2020/12/30", "2020/12/31", "2021/12/31"]}, {"title": "来鳥江", "heard": true, "live_dates": ["2020/12/31", "2023/07/30"]}, {"title": "NAMELY", "heard": true, "live_dates": ["2022/12/31", "2026/02/21"]}, {"title": "イーティー", "heard": true, "live_dates": ["2022/03/01"]}, {"title": "AS ONE", "heard": true, "live_dates": ["2020/06/06", "2020/07/06", "2020/12/30", "2022/03/01", "2024/12/25", "2024/12/30"]}, {"title": "HOURGLASS", "heard": true, "live_dates": ["2020/12/30", "2020/12/31", "2025/12/20"]}, {"title": "NEVER ENDING WORLD", "heard": true, "live_dates": ["2021/12/30", "2021/12/31", "2022/03/01", "2022/12/30", "2022/12/31"]}], "heard_count": 13, "total_count": 13}, {"album_name": "ピグマリオン", "release_date": "2022-08-17", "tracks": [{"title": "ピグマリオン", "heard": true, "live_dates": ["2022/12/30", "2022/12/31", "2023/12/31", "2024/12/30"]}, {"title": "BVCK", "heard": true, "live_dates": ["2022/12/30"]}], "heard_count": 2, "total_count": 2}, {"album_name": "ENIGMASIS", "release_date": "2023-07-19", "tracks": [{"title": "ビタースウィート", "heard": true, "live_dates": ["2023/07/30", "2023/12/30", "2024/12/31", "2025/06/15", "2025/09/05"]}, {"title": "VICTOSPIN", "heard": true, "live_dates": ["2023/07/30", "2023/12/30", "2023/12/31", "2024/12/20", "2024/12/30", "2025/09/05"]}, {"title": "ENCORE AGAIN", "heard": true, "live_dates": ["2023/12/30"]}, {"title": "FINALIST", "heard": true, "live_dates": ["2023/07/30"]}, {"title": "echoOZ", "heard": true, "live_dates": ["2023/12/30", "2024/12/30", "2025/09/05"]}, {"title": "Don't Think.Sing", "heard": true, "live_dates": ["2023/07/30", "2023/12/30", "2024/12/20", "2024/12/30", "2024/12/31", "2025/12/20"]}, {"title": "α-Skill", "heard": true, "live_dates": ["2025/09/05", "2025/12/30"]}, {"title": "two Lies", "heard": true, "live_dates": ["2023/12/30"]}, {"title": "THEORY", "heard": true, "live_dates": ["2022/12/30", "2022/12/31", "2023/07/30", "2023/12/30", "2023/12/31", "2025/05/11", "2025/06/15"]}, {"title": "ピグマリオン", "heard": true, "live_dates": ["2022/12/30", "2022/12/31", "2023/12/31", "2024/12/30"]}, {"title": "ANOMALY奏者", "heard": true, "live_dates": ["2022/12/30", "2023/12/30"]}, {"title": "ENIGMASIS", "heard": true, "live_dates": ["2023/07/30", "2023/12/30", "2024/12/30"]}], "heard_count": 12, "total_count": 12}, {"album_name": "Eye's Sentry", "release_date": "2024-03-06", "tracks": [{"title": "Eye's Sentry", "heard": true, "live_dates": ["2024/12/20", "2024/12/25", "2024/12/30", "2024/12/31", "2025/05/11", "2025/06/14", "2025/06/15", "2025/12/20", "2026/01/31"]}, {"title": "High Light!", "heard": true, "live_dates": ["2024/12/20", "2024/12/25", "2024/12/30", "2024/12/31", "2025/06/15", "2025/12/25"]}, {"title": "uber cozy universe", "heard": false, "live_dates": []}], "heard_count": 2, "total_count": 3}, {"album_name": "MEMORIES of the End", "release_date": "2024-06-26", "tracks": [{"title": "MEMORIES of the End", "heard": true, "live_dates": ["2024/12/20", "2024/12/30", "2025/06/15"]}], "heard_count": 1, "total_count": 1}, {"album_name": "PHOENIX", "release_date": "2024-12-04", "tracks": [{"title": "PHOENIX", "heard": true, "live_dates": ["2024/12/20", "2024/12/25", "2024/12/30", "2024/12/31", "2025/05/11"]}, {"title": "Countdown", "heard": false, "live_dates": []}], "heard_count": 1, "total_count": 2}, {"album_name": "MMH", "release_date": "2024-12-04", "tracks": [{"title": "MMH", "heard": true, "live_dates": ["2024/12/20", "2024/12/25", "2024/12/30", "2024/12/31", "2025/06/14", "2025/06/15", "2025/09/05", "2025/12/20", "2025/12/25", "2025/12/26", "2025/12/30", "2025/12/31", "2026/02/04", "2026/02/21"]}, {"title": "WINGS ever", "heard": true, "live_dates": ["2025/12/30"]}], "heard_count": 2, "total_count": 2}, {"album_name": "Bye-Bye to you", "release_date": "2025-06-06", "tracks": [{"title": "Bye-Bye to you", "heard": true, "live_dates": ["2025/06/14", "2025/06/15", "2025/09/05", "2025/12/20", "2025/12/30", "2025/12/31", "2026/02/04", "2026/02/21"]}], "heard_count": 1, "total_count": 1}, {"album_name": "NO MAP", "release_date": "2025-06-11", "tracks": [{"title": "NO MAP", "heard": true, "live_dates": ["2025/06/14", "2025/06/15", "2025/09/05", "2025/12/20", "2025/12/25", "2025/12/26", "2025/12/30", "2025/12/31", "2026/02/04", "2026/02/21"]}], "heard_count": 1, "total_count": 1}, {"album_name": "EPIPHANY", "release_date": "2025-07-02", "tracks": [{"title": "WICKED boy", "heard": true, "live_dates": ["2025/06/14", "2025/06/15", "2025/09/05", "2025/12/20", "2025/12/30", "2025/12/31", "2026/01/31"]}, {"title": "PHOENIX AX", "heard": true, "live_dates": ["2025/06/14", "2025/06/15", "2025/09/05", "2025/12/20", "2025/12/25", "2025/12/26", "2025/12/30", "2025/12/31", "2026/01/31", "2026/02/04", "2026/02/21"]}, {"title": "NO MAP", "heard": true, "live_dates": ["2025/06/14", "2025/06/15", "2025/09/05", "2025/12/20", "2025/12/25", "2025/12/26", "2025/12/30", "2025/12/31", "2026/02/04", "2026/02/21"]}, {"title": "Bye-Bye to you", "heard": true, "live_dates": ["2025/06/14", "2025/06/15", "2025/09/05", "2025/12/20", "2025/12/30", "2025/12/31", "2026/02/04", "2026/02/21"]}, {"title": "EPIPHANY", "heard": true, "live_dates": ["2025/06/14", "2025/06/15", "2025/09/05", "2025/12/20", "2025/12/25", "2025/12/26", "2025/12/30", "2026/02/04", "2026/02/21"]}, {"title": "MMH", "heard": true, "live_dates": ["2024/12/20", "2024/12/25", "2024/12/30", "2024/12/31", "2025/06/14", "2025/06/15", "2025/09/05", "2025/12/20", "2025/12/25", "2025/12/26", "2025/12/30", "2025/12/31", "2026/02/04", "2026/02/21"]}, {"title": "Only US", "heard": true, "live_dates": ["2025/12/30"]}, {"title": "If...Hello", "heard": true, "live_dates": ["2025/12/25", "2025/12/30"]}, {"title": "WINGS ever", "heard": true, "live_dates": ["2025/12/30"]}, {"title": "Eye's Sentry", "heard": true, "live_dates": ["2024/12/20", "2024/12/25", "2024/12/30", "2024/12/31", "2025/05/11", "2025/06/14", "2025/06/15", "2025/12/20", "2026/01/31"]}, {"title": "MEMORIES of the End", "heard": true, "live_dates": ["2024/12/20", "2024/12/30", "2025/06/15"]}, {"title": "JUMP", "heard": true, "live_dates": ["2025/06/14", "2025/09/05", "2025/12/20"]}], "heard_count": 12, "total_count": 12}, {"album_name": "EVER", "release_date": "2026-02-25", "tracks": [{"title": "EVER", "heard": true, "live_dates": ["2025/12/20", "2025/12/25", "2025/12/30", "2026/02/04", "2026/02/21"]}, {"title": "ZERO BREAKOUT POINT", "heard": true, "live_dates": ["2025/12/20", "2025/12/25", "2025/12/26", "2025/12/30", "2025/12/31", "2026/01/31", "2026/02/04", "2026/02/21"]}], "heard_count": 2, "total_count": 2}];
+
+let uwFilter = 'all';
+let uwSearch = '';
+
+function uwRender() {
+  const body = document.getElementById('uw-body');
+  body.innerHTML = '';
+  const q = uwSearch.toLowerCase();
+
+  UW_DATA.forEach(album => {
+    const tracks = album.tracks.filter(tr => {
+      if (uwFilter === 'heard'   && !tr.heard) return false;
+      if (uwFilter === 'unheard' &&  tr.heard) return false;
+      if (q && !tr.title.toLowerCase().includes(q) && !album.album_name.toLowerCase().includes(q)) return false;
+      return true;
+    });
+    if (!tracks.length) return;
+
+    const pct = album.total_count > 0 ? Math.round(album.heard_count / album.total_count * 100) : 0;
+    const card = document.createElement('div');
+    card.className = 'uw-card';
+
+    const tracksHtml = tracks.map(tr => {
+      const live = tr.heard && tr.live_dates.length > 0
+        ? `<span class="uw-live">📅${tr.live_dates.length}times<div class="uw-popup">${tr.live_dates.join('<br>')}</div></span>`
+        : '';
+      return `<div class="uw-track">
+        <span class="uw-dot ${tr.heard ? 'h' : 'u'}">${tr.heard ? '✓' : '✕'}</span>
+        <span class="uw-ttitle ${tr.heard ? '' : 'u'}">${tr.title}</span>
+        ${live}
+      </div>`;
+    }).join('');
+
+    card.innerHTML = `
+      <div class="uw-aheader" onclick="this.closest('.uw-card').classList.toggle('open')">
+        <div style="min-width:0;flex:1;">
+          <div class="uw-aname">${album.album_name}</div>
+          <div class="uw-adate">${album.release_date}</div>
+        </div>
+        <div class="uw-prog">
+          <div class="uw-bar"><div class="uw-fill" style="width:${pct}%"></div></div>
+          <div class="uw-plabel">${album.heard_count}/${album.total_count}</div>
+        </div>
+        <span class="uw-chev">▼</span>
+      </div>
+      <div class="uw-tracks">${tracksHtml}</div>`;
+    body.appendChild(card);
+  });
+}
+
+window.uwFilter = function(f, btn) {
+  uwFilter = f;
+  document.querySelectorAll('#uw-tracker .uw-fbtn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  uwRender();
+};
+window.uwExpand = function(open) {
+  document.querySelectorAll('#uw-tracker .uw-card').forEach(c => c.classList.toggle('open', open));
+};
+
+document.getElementById('uw-search').addEventListener('input', e => {
+  uwSearch = e.target.value;
+  uwRender();
+  if (uwSearch) uwExpand(true);
+});
+
+uwRender();
+})();
+</script>
+<!-- ===== /UVERworld 視聴状況 ===== -->
