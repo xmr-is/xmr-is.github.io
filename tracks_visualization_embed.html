@@ -6,13 +6,16 @@
       font-family: 'Helvetica Neue', Arial, sans-serif;
       color: #1a1a1a;
       background: #fff;
-      border-radius: 10px;
+      border-radius: 0;
       overflow: hidden;
       margin: 0;
-      max-width: 860px;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
     }
     .uw-head {
-      background: #f0f4ff;
+      background: #212529;
       padding: 14px 16px;
       border-bottom: 2px solid #e94560;
     }
@@ -72,7 +75,7 @@
 
     .uw-body {
       padding: 12px 12px;
-      max-height: 304px;
+      flex: 1;
       overflow-y: auto;
     }
     .uw-card {
