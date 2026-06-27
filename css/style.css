@@ -74,12 +74,12 @@ h5 {
     left: 50px;
     bottom: 10px;
     width: 85vw;
-    height: 50vh;
+    height: 30vh;
 }
 
 .iframe-wrapper2 iframe {
     display: block;
     width: 100%;
-    height: 50vh;
+    height: 30vh;
     border: none;
 }
