@@ -62,8 +62,9 @@ h5 {
 }
 
 .iframe-wrapper2 {
-    width: calc(85vw - 50px);
-    margin-left: 50px;
+    position: relative;
+    overflow: hidden;
+    width: 85vw;
     margin-top: 15px;
     margin-bottom: 50px;
 }
@@ -79,7 +80,8 @@ h5 {
 
 .iframe-wrapper2 iframe {
     display: block;
-    width: 100%;
+    margin-left: 50px;
+    width: 85vw;
     height: 30vh;
     border: none;
 }
