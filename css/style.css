@@ -63,10 +63,12 @@ h5 {
 
 .iframe-wrapper2 {
     position: relative;
-    width: 85vw;
+    width: calc(85vw - 50px);
+    height: 26.25vh;
+    margin-left: 50px;
     margin-top: 15px;
 }
-  
+
 .iframe-wrapper iframe {
     position: absolute;
     top: 15px;
@@ -78,9 +80,9 @@ h5 {
 
 .iframe-wrapper2 iframe {
     position: absolute;
-    left: 50px;
-    width: 85vw;
-    height: 700px;
+    top: 15px;
+    width: 100%;
+    height: 30vh;
     border: none;
     display: block;
 }
