@@ -63,7 +63,6 @@ h5 {
 
 .iframe-wrapper2 {
     position: relative;
-    overflow: hidden;
     width: 85vw;
     height: 30vh;
     margin-top: 15px;
@@ -83,7 +82,7 @@ h5 {
     position: absolute;
     top: 0;
     left: 50px;
-    width: 85vw;
+    width: calc(85vw - 50px);
     height: 30vh;
     border: none;
 }
